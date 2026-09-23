@@ -1,0 +1,34 @@
+---
+interface Props {
+  current?: 'Adelie' | 'Gentoo' | 'Chinstrap' | 'all' | string;
+}
+
+const { current = '' } = Astro.props;
+---
+
+<div class="w-full flex flex-wrap items-center justify-center gap-3 my-4 p-3 bg-white/80 backdrop-blur-sm rounded-2xl border border-pink-200 shadow-sm">
+  <label for="species" class="text-xs sm:text-sm font-bold text-pink-900">
+    Choisir une espèce :
+  </label>
+  <select
+    id="species"
+    name="species"
+    class="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold bg-white text-slate-800 border border-pink-300 shadow-xs focus:outline-none focus:ring-2 focus:ring-pink-500 cursor-pointer"
+  >
+    <option value="" disabled selected={!['adelie', 'chinstrap', 'gentoo'].includes(current.toLowerCase())}>
+      -- Sélectionnez une espèce --
+    </option>
+    <option value="Adelie" selected={current.toLowerCase() === 'adelie'}>Adelie</option>
+    <option value="Chinstrap" selected={current.toLowerCase() === 'chinstrap'}>Chinstrap</option>
+    <option value="Gentoo" selected={current.toLowerCase() === 'gentoo'}>Gentoo</option>
+  </select>
+</div>
+
+<script>
+  document.querySelector("#species")?.addEventListener("change", (evt) => {
+    const value = (evt.target as HTMLSelectElement).value;
+    if (value) {
+      location.pathname = "/species/" + value + "/";
+    }
+  });
+</script>

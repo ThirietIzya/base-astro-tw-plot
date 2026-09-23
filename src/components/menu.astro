@@ -1,0 +1,62 @@
+---
+interface Props {
+  active?: string;
+}
+
+const { active } = Astro.props;
+const currentPath = Astro.url.pathname.replace(/\/$/, "");
+
+const navItems = [
+  { id: "home", label: "Accueil", href: "/" },
+  { id: "graphs", label: "Graphiques", href: "/graphique-2", match: ["/graphique", "/graphique-2", "/graphique-4"] },
+  { id: "species", label: "Espèces (Slider)", href: "/species", match: ["/species", "/species/adelie", "/species/gentoo", "/species/chinstrap"] },
+  { id: "client", label: "💻 Graphiques Client", href: "/client/simple", match: ["/client"] },
+  { id: "singes", label: "Singes 🐒", href: "/singes", match: ["/singes"] },
+  { id: "cookies", label: "Cookies 🍪", href: "/cookies", match: ["/cookies"] },
+];
+
+const checkActive = (item: (typeof navItems)[0]) => {
+  if (active) {
+    if (active === item.id) return true;
+    if (item.id === "graphs" && ["graphique2", "graphique3", "graphique4"].includes(active)) return true;
+    if (item.id === "species" && ["species", "adelie", "gentoo", "chinstrap"].includes(active)) return true;
+  }
+  const normalizedCurrent = currentPath.toLowerCase();
+  if (item.href === "/" && normalizedCurrent === "") return true;
+  if (item.match && item.match.some((m) => normalizedCurrent === m || normalizedCurrent.startsWith(m + "/"))) return true;
+  return item.href !== "/" && normalizedCurrent === item.href.replace(/\/$/, "").toLowerCase();
+};
+---
+
+<nav class="w-full max-w-5xl mx-auto mb-4 bg-pink-100/70 backdrop-blur-sm border-2 border-pink-300/80 rounded-3xl p-3 sm:p-4 shadow-sm" aria-label="Navigation principale">
+  <div class="flex flex-wrap items-center justify-between gap-3 px-2">
+    <!-- Logo / Brand -->
+    <a href="/" class="flex items-center gap-2 text-pink-900 font-extrabold text-lg sm:text-xl tracking-tight hover:opacity-80 transition-opacity">
+      <img src="/image_manchot_menu.png" alt="Logo Manchot" class="w-7 h-7 object-contain" />
+      <span>Palmer <span class="text-pink-600 font-black">Data</span></span>
+    </a>
+
+    <!-- Navigation links streamlined -->
+    <div class="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
+      {
+        navItems.map((tab) => {
+          const isActive = checkActive(tab);
+          return (
+            <a
+              href={tab.href}
+              class:list={[
+                "inline-flex items-center justify-center px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-bold transition-all duration-200 border",
+                isActive
+                  ? "bg-pink-600 text-white border-pink-700 shadow-md shadow-pink-500/20 scale-[1.02]"
+                  : "bg-white/85 text-pink-950 border-pink-200/90 hover:bg-pink-200/60 hover:border-pink-300 hover:text-pink-900 shadow-2xs"
+              ]}
+              aria-current={isActive ? "page" : undefined}
+            >
+              {tab.label}
+            </a>
+          );
+        })
+      }
+    </div>
+  </div>
+</nav>

@@ -1,0 +1,77 @@
+---
+import Layout from '../layouts/Layout.astro';
+import GraphicCookies from '../components/GraphicCookies.astro';
+import cookies from '../data/cookies.json';
+
+const categories = [
+  { id: 'chocolat', name: 'Chocolat', emoji: '🍫', count: cookies.filter(c => c.type === 'Chocolat').length },
+  { id: 'fruit', name: 'Fruit', emoji: '🍓', count: cookies.filter(c => c.type === 'Fruit').length },
+  { id: 'noix', name: 'Noix', emoji: '🌰', count: cookies.filter(c => c.type === 'Noix').length },
+  { id: 'avoine', name: 'Avoine', emoji: '🌾', count: cookies.filter(c => c.type === 'Avoine').length },
+];
+---
+
+<Layout title="Analyse Nutritionnelle des Cookies - Données filtrées" activeTab="cookies">
+  <div class="space-y-10">
+    <!-- En-tête -->
+    <div class="text-center space-y-3">
+      <span class="inline-block px-3 py-1 bg-amber-100 text-amber-900 border border-amber-300 rounded-full text-xs font-black uppercase tracking-wider">
+        Base de données filtrée
+      </span>
+      <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+        Le Coin des <span class="text-pink-600">Gourmands 🍪</span>
+      </h1>
+      <p class="text-slate-600 max-w-2xl mx-auto text-sm sm:text-base">
+        Explorez nos <strong>{cookies.length} recettes de cookies</strong> filtrées par catégories (Chocolat, Fruit, Noix, Avoine). Comparez leurs apports en calories, sucre et matières grasses.
+      </p>
+    </div>
+
+    <!-- Filtres rapides par catégories -->
+    <div class="sticky top-4 z-20 flex justify-center py-2">
+      <nav class="flex flex-wrap items-center justify-center gap-2 p-2 bg-white/90 backdrop-blur-md rounded-full border-2 border-pink-300 shadow-md" aria-label="Filtres catégories cookies">
+        <a
+          href="#vue-globale"
+          class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold border border-pink-200 bg-pink-50 text-pink-950 hover:bg-pink-100 transition-all shadow-xs"
+        >
+          <span>✨</span>
+          <span>Vue Globale ({cookies.length})</span>
+        </a>
+        {categories.map((cat) => (
+          <a
+            href={`#${cat.id}`}
+            class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold border border-slate-200 bg-white text-slate-700 hover:bg-pink-50 hover:text-pink-900 hover:border-pink-300 transition-all shadow-xs"
+          >
+            <span>{cat.emoji}</span>
+            <span>{cat.name} ({cat.count})</span>
+          </a>
+        ))}
+      </nav>
+    </div>
+
+    <!-- 1. Vue globale avec toutes les recettes -->
+    <section id="vue-globale" class="scroll-mt-24 space-y-3">
+      <GraphicCookies type="all" title="Comparaison Globale de toutes les Recettes" />
+    </section>
+
+    <!-- 2. Section filtrée : Chocolat -->
+    <section id="chocolat" class="scroll-mt-24 space-y-3">
+      <GraphicCookies type="Chocolat" title="🍫 Sélection Spéciale : Cookies au Chocolat" />
+    </section>
+
+    <!-- 3. Section filtrée : Fruits -->
+    <section id="fruit" class="scroll-mt-24 space-y-3">
+      <GraphicCookies type="Fruit" title="🍓 Sélection Fruité : Cookies aux Fruits & Agrumes" />
+    </section>
+
+    <!-- 4. Section filtrée : Noix -->
+    <section id="noix" class="scroll-mt-24 space-y-3">
+      <GraphicCookies type="Noix" title="🌰 Sélection Croquante : Cookies aux Noix & Graines" />
+    </section>
+
+    <!-- 5. Section filtrée : Avoine -->
+    <section id="avoine" class="scroll-mt-24 space-y-3">
+      <GraphicCookies type="Avoine" title="🌾 Sélection Healthy : Cookies à l'Avoine & Céréales" />
+    </section>
+  </div>
+</Layout>
+

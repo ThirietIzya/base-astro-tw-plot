@@ -1,0 +1,151 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ClientNav from '../../components/ClientNav.astro';
+---
+
+<Layout title="Graphique Client - Singes Multi-Filtres" activeTab="client">
+  <div class="space-y-6">
+    <div class="text-center space-y-2">
+      <span class="inline-block px-3 py-1 bg-purple-100 text-purple-900 border border-purple-300 rounded-full text-xs font-bold uppercase tracking-wider">
+        Étape 5 : Autre Dataset (Singes)
+      </span>
+      <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+        Singes avec <span class="text-pink-600">Filtres Côté Client</span>
+      </h1>
+      <p class="text-slate-600 max-w-2xl mx-auto text-sm sm:text-base">
+        Filtrage dynamique de la base de données des primates par groupe et régime alimentaire avec mise à jour instantanée du graphique.
+      </p>
+    </div>
+
+    <!-- Navigation entre les essais côté client -->
+    <ClientNav current="singes-filtre" />
+
+    <!-- Formulaire de filtres -->
+    <div class="flex justify-center items-center py-2">
+      <div class="flex flex-wrap items-center justify-center gap-4 p-4 bg-white/95 backdrop-blur-md rounded-2xl border-2 border-pink-300 shadow-md">
+        <!-- Filtre Groupe -->
+        <div class="flex items-center gap-2">
+          <label for="group" class="text-xs sm:text-sm font-bold text-pink-900">
+            Groupe :
+          </label>
+          <select
+            name="group"
+            id="group"
+            class="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold bg-white text-slate-800 border border-pink-300 shadow-xs focus:outline-none focus:ring-2 focus:ring-pink-500 cursor-pointer"
+          >
+            <option value="">Tous les groupes</option>
+            <option value="Grands Singes">Grands Singes</option>
+            <option value="Petits Singes">Petits Singes</option>
+            <option value="Singes de l'Ancien Monde">Singes de l'Ancien Monde</option>
+            <option value="Singes du Nouveau Monde">Singes du Nouveau Monde</option>
+          </select>
+        </div>
+
+        <!-- Filtre Régime -->
+        <div class="flex items-center gap-2">
+          <label for="diet" class="text-xs sm:text-sm font-bold text-pink-900">
+            Régime :
+          </label>
+          <select
+            name="diet"
+            id="diet"
+            class="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold bg-white text-slate-800 border border-pink-300 shadow-xs focus:outline-none focus:ring-2 focus:ring-pink-500 cursor-pointer"
+          >
+            <option value="">Tous les régimes</option>
+            <option value="Frugivore">Frugivore</option>
+            <option value="Omnivore">Omnivore</option>
+            <option value="Herbivore">Herbivore</option>
+            <option value="Folivore">Folivore</option>
+            <option value="Gommivore">Gommivore</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zone d'affichage du graphique et compteur -->
+    <section class="rounded-3xl border-2 border-pink-200 bg-white/95 p-6 sm:p-8 shadow-sm flex flex-col items-center">
+      <div id="results-count" class="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider"></div>
+      <div id="myplot" class="flex justify-center items-center overflow-x-auto w-full"></div>
+    </section>
+  </div>
+</Layout>
+
+<script>
+  // Importe la librairie Plot d'ObservableHQ
+  import * as Plot from "@observablehq/plot";
+  // Importe les données des singes depuis le fichier JSON
+  import monkeys from "../../data/monkeys.json";
+
+  // Récupère les éléments select
+  const selectGroup = document.querySelector<HTMLSelectElement>("#group")!;
+  const selectDiet = document.querySelector<HTMLSelectElement>("#diet")!;
+  const countDiv = document.querySelector("#results-count");
+  const div = document.querySelector("#myplot")!;
+
+  // Fonction de rendu dynamique du graphique filtré
+  function renderPlot() {
+    const group = selectGroup.value;
+    const diet = selectDiet.value;
+
+    // Filtre les données selon les critères
+    const filteredMonkeys = monkeys.filter((m) => {
+      const matchGroup = !group || m.group === group;
+      const matchDiet = !diet || m.diet === diet;
+      return matchGroup && matchDiet;
+    });
+
+    // Affiche le nombre d'espèces correspondantes
+    if (countDiv) {
+      countDiv.textContent = `${filteredMonkeys.length} espèce(s) de singe(s) affichée(s)`;
+    }
+
+    // Vide le conteneur
+    div.innerHTML = "";
+
+    // Génère le graphique Plot
+    const plot = Plot.plot({
+      title: "Poids (kg) vs Taille (cm) des Singes",
+      grid: true,
+      inset: 15,
+      marginLeft: 55,
+      marginBottom: 45,
+      x: { label: "Poids (kg) →" },
+      y: { label: "↑ Taille (cm)" },
+      color: {
+        legend: true,
+        domain: ["Grands Singes", "Petits Singes", "Singes de l'Ancien Monde", "Singes du Nouveau Monde"],
+        range: ["#e11d48", "#f59e0b", "#8b5cf6", "#06b6d4"]
+      },
+      marks: [
+        Plot.dot(filteredMonkeys, {
+          x: "weight_kg",
+          y: "height_cm",
+          fill: "group",
+          stroke: "#ffffff",
+          strokeWidth: 1.5,
+          r: 6,
+          title: (d) => `${d.name} (${d.species})\nGroupe: ${d.group}\nRégime: ${d.diet}\nPoids: ${d.weight_kg}kg\nTaille: ${d.height_cm}cm`
+        }),
+        Plot.text(filteredMonkeys, {
+          x: "weight_kg",
+          y: "height_cm",
+          text: (d) => d.name,
+          dy: -12,
+          fontSize: 10,
+          fill: "#334155"
+        })
+      ]
+    });
+
+    // Ajoute le graphique au DOM
+    div.append(plot);
+  }
+
+  // Écouteurs de changement
+  selectGroup.addEventListener("change", renderPlot);
+  selectDiet.addEventListener("change", renderPlot);
+
+  // Rendu initial
+  renderPlot();
+</script>
+

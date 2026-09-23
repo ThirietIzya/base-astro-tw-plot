@@ -1,0 +1,33 @@
+---
+interface Props {
+	current?: number;
+}
+
+const { current } = Astro.props;
+
+const graphLinks = [
+	{ number: 1, label: 'Graphique 1 (Scatter)', href: '/' },
+	{ number: 2, label: 'Graphique 2 (Barres)', href: '/graphique-2' },
+	{ number: 3, label: 'Graphique 3 (Histogramme)', href: '/graphique' },
+	{ number: 4, label: 'Graphique 4 (Boîtes)', href: '/graphique-4' }
+];
+---
+
+<nav class="flex flex-wrap justify-center items-center gap-2 mt-2 mb-4" aria-label="Accéder aux autres graphiques">
+	{graphLinks.map((link) => {
+		const isCurrent = link.number === current;
+		return (
+			<a
+				href={link.href}
+				class:list={[
+					"px-3.5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 border",
+					isCurrent
+						? "bg-pink-600 text-white border-pink-700 shadow-sm pointer-events-none"
+						: "bg-white text-slate-700 border-pink-200 hover:bg-pink-100 hover:border-pink-300 hover:text-pink-900 shadow-xs"
+				]}
+			>
+				{link.label}
+			</a>
+		);
+	})}
+</nav>

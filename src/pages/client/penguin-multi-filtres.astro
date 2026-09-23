@@ -1,0 +1,149 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ClientNav from '../../components/ClientNav.astro';
+---
+
+<Layout title="Graphique Client - Penguin Multi-Filtres" activeTab="client">
+  <div class="space-y-6">
+    <div class="text-center space-y-2">
+      <span class="inline-block px-3 py-1 bg-pink-100 text-pink-800 border border-pink-300 rounded-full text-xs font-bold uppercase tracking-wider">
+        Étape 4 : Multi-filtres combinés
+      </span>
+      <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+        Penguin avec <span class="text-pink-600">Multi-Filtres</span>
+      </h1>
+      <p class="text-slate-600 max-w-2xl mx-auto text-sm sm:text-base">
+        Combinez plusieurs filtres (Espèce, Île, Sexe) pour affiner les données du nuage de points en temps réel côté client.
+      </p>
+    </div>
+
+    <!-- Navigation entre les essais côté client -->
+    <ClientNav current="penguin-multi" />
+
+    <!-- Formulaire avec 3 filtres -->
+    <div class="flex justify-center items-center py-2">
+      <div class="flex flex-wrap items-center justify-center gap-4 p-4 bg-white/95 backdrop-blur-md rounded-2xl border-2 border-pink-300 shadow-md">
+        <!-- Filtre Espèce -->
+        <div class="flex items-center gap-2">
+          <label for="species" class="text-xs sm:text-sm font-bold text-pink-900">
+            Espèce :
+          </label>
+          <select
+            name="species"
+            id="species"
+            class="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold bg-white text-slate-800 border border-pink-300 shadow-xs focus:outline-none focus:ring-2 focus:ring-pink-500 cursor-pointer"
+          >
+            <option value="">All species</option>
+            <option value="Adelie">Adelie</option>
+            <option value="Chinstrap">Chinstrap</option>
+            <option value="Gentoo">Gentoo</option>
+          </select>
+        </div>
+
+        <!-- Filtre Île -->
+        <div class="flex items-center gap-2">
+          <label for="island" class="text-xs sm:text-sm font-bold text-pink-900">
+            Île :
+          </label>
+          <select
+            name="island"
+            id="island"
+            class="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold bg-white text-slate-800 border border-pink-300 shadow-xs focus:outline-none focus:ring-2 focus:ring-pink-500 cursor-pointer"
+          >
+            <option value="">All islands</option>
+            <option value="Biscoe">Biscoe</option>
+            <option value="Dream">Dream</option>
+            <option value="Torgersen">Torgersen</option>
+          </select>
+        </div>
+
+        <!-- Filtre Sexe -->
+        <div class="flex items-center gap-2">
+          <label for="sex" class="text-xs sm:text-sm font-bold text-pink-900">
+            Sexe :
+          </label>
+          <select
+            name="sex"
+            id="sex"
+            class="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold bg-white text-slate-800 border border-pink-300 shadow-xs focus:outline-none focus:ring-2 focus:ring-pink-500 cursor-pointer"
+          >
+            <option value="">All sexes</option>
+            <option value="MALE">MALE</option>
+            <option value="FEMALE">FEMALE</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zone d'affichage du graphique et compteur de résultats -->
+    <section class="rounded-3xl border-2 border-pink-200 bg-white/95 p-6 sm:p-8 shadow-sm flex flex-col items-center">
+      <div id="results-count" class="text-xs font-bold text-slate-500 mb-3 uppercase tracking-wider"></div>
+      <div id="myplot" class="flex justify-center items-center overflow-x-auto w-full"></div>
+    </section>
+  </div>
+</Layout>
+
+<script>
+  // Importe la librairie Plot d'ObservableHQ
+  import * as Plot from "@observablehq/plot";
+  // Importe les données des manchots depuis le fichier JSON
+  import penguins from "../../data/penguins.json";
+
+  // Récupère les éléments select pour les filtres
+  const selectSpecies = document.querySelector<HTMLSelectElement>("#species")!;
+  const selectIsland = document.querySelector<HTMLSelectElement>("#island")!;
+  const selectSex = document.querySelector<HTMLSelectElement>("#sex")!;
+  const countDiv = document.querySelector("#results-count");
+  const div = document.querySelector("#myplot")!;
+
+  // Fonction pour afficher le graphique filtré
+  function renderPlot() {
+    // Récupère les valeurs des 3 filtres
+    const species = selectSpecies.value;
+    const island = selectIsland.value;
+    const sex = selectSex.value;
+
+    // Filtre les données selon les critères actifs
+    const filteredPenguins = penguins.filter((p) => {
+      const matchSpecies = !species || p.species === species;
+      const matchIsland = !island || p.island === island;
+      const matchSex = !sex || p.sex === sex;
+      return matchSpecies && matchIsland && matchSex;
+    });
+
+    // Affiche le nombre de résultats
+    if (countDiv) {
+      countDiv.textContent = `${filteredPenguins.length} manchot(s) correspondant aux critères`;
+    }
+
+    // Vide le contenu précédent de la div
+    div.innerHTML = "";
+
+    // Crée le graphique avec Plot
+    const plot = Plot.plot({
+      grid: true,
+      inset: 10,
+      marks: [
+        Plot.dot(filteredPenguins, {
+          x: "culmen_length_mm",
+          y: "culmen_depth_mm",
+          stroke: "species",
+          r: 4.5,
+          title: (d) => `Espèce: ${d.species}\nÎle: ${d.island}\nSexe: ${d.sex || "Inconnu"}\nBec: ${d.culmen_length_mm}x${d.culmen_depth_mm}mm`
+        })
+      ]
+    });
+
+    // Ajoute le graphique à la div
+    div.append(plot);
+  }
+
+  // Ajoute un écouteur d'événement sur chaque select
+  selectSpecies.addEventListener("change", renderPlot);
+  selectIsland.addEventListener("change", renderPlot);
+  selectSex.addEventListener("change", renderPlot);
+
+  // Affiche le graphique au chargement de la page
+  renderPlot();
+</script>
+

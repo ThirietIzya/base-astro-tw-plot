@@ -1,0 +1,36 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ClientNav from '../../components/ClientNav.astro';
+---
+
+<Layout title="Graphique Client - Simple" activeTab="client">
+  <div class="space-y-6">
+    <div class="text-center space-y-2">
+      <span class="inline-block px-3 py-1 bg-pink-100 text-pink-800 border border-pink-300 rounded-full text-xs font-bold uppercase tracking-wider">
+        Étape 1 : Rendu côté client
+      </span>
+      <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+        Graphique Client : <span class="text-pink-600">Simple</span>
+      </h1>
+      <p class="text-slate-600 max-w-2xl mx-auto text-sm sm:text-base">
+        Rendu dynamique de Plot côté client avec <code>import * as Plot from "@observablehq/plot"</code> et injection dans le DOM via <code>div.append()</code>.
+      </p>
+    </div>
+
+    <!-- Navigation entre les essais côté client -->
+    <ClientNav current="simple" />
+
+    <section class="rounded-3xl border-2 border-pink-200 bg-white/95 p-6 sm:p-8 shadow-sm flex flex-col items-center">
+      <div id="myplot" class="flex justify-center items-center overflow-x-auto w-full"></div>
+    </section>
+  </div>
+</Layout>
+
+<script>
+  import * as Plot from "@observablehq/plot";
+
+  const plot = Plot.rectY({ length: 10000 }, Plot.binX({ y: "count" }, { x: Math.random })).plot();
+  const div = document.querySelector("#myplot");
+  div?.append(plot);
+</script>
+

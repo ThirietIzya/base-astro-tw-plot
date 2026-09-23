@@ -1,0 +1,97 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import ClientNav from '../../components/ClientNav.astro';
+---
+
+<Layout title="Graphique Client - Penguin avec Filtre" activeTab="client">
+  <div class="space-y-6">
+    <div class="text-center space-y-2">
+      <span class="inline-block px-3 py-1 bg-pink-100 text-pink-800 border border-pink-300 rounded-full text-xs font-bold uppercase tracking-wider">
+        Étape 3 : Filtre par espèce
+      </span>
+      <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+        Penguin avec <span class="text-pink-600">Filtre Espèce</span>
+      </h1>
+      <p class="text-slate-600 max-w-2xl mx-auto text-sm sm:text-base">
+        Sélectionnez une espèce dans le menu déroulant pour filtrer dynamiquement les données du graphique côté client.
+      </p>
+    </div>
+
+    <!-- Navigation entre les essais côté client -->
+    <ClientNav current="penguin-filtre" />
+
+    <!-- Formulaire de filtre -->
+    <div class="flex justify-center items-center py-2">
+      <div class="flex items-center gap-3 p-3 bg-white/95 backdrop-blur-md rounded-2xl border-2 border-pink-300 shadow-md">
+        <label for="species" class="text-xs sm:text-sm font-bold text-pink-900">
+          Filtrer par espèce :
+        </label>
+        <select
+          name="species"
+          id="species"
+          class="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold bg-white text-slate-800 border border-pink-300 shadow-xs focus:outline-none focus:ring-2 focus:ring-pink-500 cursor-pointer"
+        >
+          <option value="">All species</option>
+          <option value="Adelie">Adelie</option>
+          <option value="Chinstrap">Chinstrap</option>
+          <option value="Gentoo">Gentoo</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Zone d'affichage du graphique -->
+    <section class="rounded-3xl border-2 border-pink-200 bg-white/95 p-6 sm:p-8 shadow-sm flex flex-col items-center">
+      <div id="myplot" class="flex justify-center items-center overflow-x-auto w-full"></div>
+    </section>
+  </div>
+</Layout>
+
+<script>
+  // Importe la librairie Plot d'ObservableHQ
+  import * as Plot from "@observablehq/plot";
+  // Importe les données des manchots depuis le fichier JSON
+  import penguins from "../../data/penguins.json";
+
+  // Récupère l'élément select pour choisir l'espèce
+  const selectSpecies = document.querySelector<HTMLSelectElement>("#species")!;
+
+  // Fonction pour afficher le graphique
+  function renderPlot() {
+    // Récupère l'espèce sélectionnée
+    const species = selectSpecies.value;
+
+    // Sélectionne la div où le graphique sera affiché
+    const div = document.querySelector("#myplot")!;
+
+    // Vide le contenu précédent de la div
+    div.innerHTML = "";
+
+    // Crée le graphique avec Plot
+    const plot = Plot.plot({
+      grid: true,
+      inset: 10,
+      marks: [
+        // Ajoute les points du graphique, filtrés selon l'espèce choisie
+        Plot.dot(
+          species ? penguins.filter((p) => p.species === species) : penguins,
+          {
+            x: "culmen_length_mm", // Axe X : longueur du bec
+            y: "culmen_depth_mm", // Axe Y : profondeur du bec
+            stroke: "species", // Couleur selon l'espèce
+            r: 4
+          }
+        )
+      ]
+    });
+
+    // Ajoute le graphique à la div
+    div.append(plot);
+  }
+
+  // Ajoute un écouteur d'événement pour le changement d'espèce (appel 'renderPlot')
+  selectSpecies.addEventListener("change", renderPlot);
+
+  // Affiche le graphique au chargement de la page
+  renderPlot();
+</script>
+

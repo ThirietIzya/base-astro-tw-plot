@@ -1,0 +1,123 @@
+---
+import Layout from '../layouts/Layout.astro';
+import GraphicSpecies from '../components/GraphicSpecies.astro';
+import SpeciesNav from '../components/SpeciesNav.astro';
+
+const speciesList = [
+  { id: 'adelie', name: 'Adelie', tag: 'Adélie', emoji: '🟧' },
+  { id: 'gentoo', name: 'Gentoo', tag: 'Papou', emoji: '🟦' },
+  { id: 'chinstrap', name: 'Chinstrap', tag: 'Jugulaire', emoji: '🟪' },
+];
+---
+
+<Layout title="Trie par espèces - Slider interactif" activeTab="species">
+  <div class="space-y-6">
+    <!-- En-tête -->
+    <div class="text-center space-y-2">
+      <span class="inline-block px-3 py-1 bg-pink-100 text-pink-800 border border-pink-300 rounded-full text-xs font-bold uppercase tracking-wider">
+        Vue d'ensemble - Slider & Ancres
+      </span>
+      <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+        Trie par <span class="text-pink-600">Espèces</span>
+      </h1>
+      <p class="text-slate-600 max-w-2xl mx-auto text-sm sm:text-base">
+        Sélectionnez une espèce dans le menu déroulant ci-dessous pour faire défiler le slider avec <code>location.hash</code>. L'élément sélectionné se met à jour automatiquement grâce à l'<code>IntersectionObserver</code>.
+      </p>
+    </div>
+
+    <!-- Navigation secondaire vers sous-pages -->
+    <SpeciesNav current="all" />
+
+    <!-- Menu SELECT avec ANCRES (location.hash) -->
+    <div class="sticky top-4 z-20 flex justify-center items-center py-2">
+      <div class="flex items-center gap-3 p-3 bg-white/95 backdrop-blur-md rounded-2xl border-2 border-pink-300 shadow-md">
+        <label for="species-anchor-select" class="text-xs sm:text-sm font-bold text-pink-900">
+          Aller à l'ancre (slider) :
+        </label>
+        <select
+          id="species-anchor-select"
+          name="species-anchor-select"
+          class="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold bg-white text-slate-800 border border-pink-300 shadow-xs focus:outline-none focus:ring-2 focus:ring-pink-500 cursor-pointer"
+        >
+          {speciesList.map((sp) => (
+            <option value={sp.id}>
+              {sp.emoji} {sp.name} (#{sp.id})
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+
+    <!-- Slider horizontal (en CSS) -->
+    <div
+      class="species-slider-wrap w-full overflow-x-auto overflow-y-hidden scroll-smooth snap-x snap-mandatory rounded-3xl pb-4 pt-1 no-scrollbar focus:outline-none"
+      id="species-slider-wrap"
+      tabindex="0"
+    >
+      <div class="species-slider flex gap-8 min-w-full" id="species-slider">
+        {speciesList.map((sp) => (
+          <section
+            id={sp.id}
+            class="item species-slide flex-none w-full snap-start snap-always scroll-mt-28 space-y-4"
+          >
+            <div class="bg-white/80 backdrop-blur-xs p-4 rounded-2xl border border-pink-200/80 flex items-center justify-between">
+              <div>
+                <h2 class="text-xl sm:text-2xl font-black text-slate-900">
+                  {sp.emoji} Manchots {sp.name}
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-500">
+                  Ancre ciblée : <code class="font-mono bg-pink-50 px-1.5 py-0.5 rounded text-pink-700 font-bold">#{sp.id}</code>
+                </p>
+              </div>
+              <a
+                href={`/species/${sp.name}/`}
+                class="inline-flex items-center gap-1 text-xs font-bold text-pink-600 hover:text-pink-800 bg-pink-50 hover:bg-pink-100 px-3 py-1.5 rounded-full border border-pink-200 transition-colors"
+              >
+                Page dédiée →
+              </a>
+            </div>
+
+            <GraphicSpecies species={sp.name} />
+          </section>
+        ))}
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<!-- Script avec addEventListener et location.hash + IntersectionObserver -->
+<script>
+  const anchorSelect = document.querySelector<HTMLSelectElement>("#species-anchor-select");
+  const items = document.querySelectorAll(".item");
+  const sliderWrap = document.querySelector("#species-slider-wrap");
+
+  // Navigation par ancres via location.hash lors du changement de sélection
+  anchorSelect?.addEventListener("change", (evt) => {
+    const value = (evt.target as HTMLSelectElement).value;
+    if (value) {
+      location.hash = value;
+    }
+  });
+
+  // Mise à jour de la valeur sélectionnée dans le select selon l'élément visible
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && anchorSelect) {
+          const id = entry.target.getAttribute("id");
+          if (id) {
+            anchorSelect.value = id;
+          }
+        }
+      });
+    },
+    { 
+      root: sliderWrap,
+      threshold: 0.5 
+    },
+  );
+
+  items.forEach((item) => {
+    observer.observe(item);
+  });
+</script>

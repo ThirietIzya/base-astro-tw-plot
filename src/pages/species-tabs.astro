@@ -1,0 +1,80 @@
+---
+import Layout from '../layouts/Layout.astro';
+import GraphicSpecies from '../components/GraphicSpecies.astro';
+import SpeciesNav from '../components/SpeciesNav.astro';
+import { Tabs, TabsList, TabsTab, TabsPanel } from 'accessible-astro-components';
+
+const speciesList = [
+  { id: 'adelie', name: 'Adelie', tag: 'Adélie', emoji: '🟧' },
+  { id: 'gentoo', name: 'Gentoo', tag: 'Papou', emoji: '🟦' },
+  { id: 'chinstrap', name: 'Chinstrap', tag: 'Jugulaire', emoji: '🟪' },
+];
+---
+
+<Layout title="Trie par espèces - Onglets accessibles" activeTab="species-tabs">
+  <div class="space-y-6">
+    <!-- En-tête -->
+    <div class="text-center space-y-2">
+      <span class="inline-block px-3 py-1 bg-pink-100 text-pink-800 border border-pink-300 rounded-full text-xs font-bold uppercase tracking-wider">
+        Accessible Astro - Onglets & Accessibilité
+      </span>
+      <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+        Trie par <span class="text-pink-600">Espèces (Tabs)</span>
+      </h1>
+      <p class="text-slate-600 max-w-2xl mx-auto text-sm sm:text-base">
+        Navigation par onglets accessibles WAI-ARIA (support clavier avec flèches ← →, focus visible, états ARIA).
+      </p>
+    </div>
+
+    <!-- Navigation secondaire vers sous-pages -->
+    <SpeciesNav current="all" />
+
+    <!-- Composant Onglets Accessible Astro -->
+    <div class="w-full max-w-4xl mx-auto">
+      <Tabs class="!w-full !space-y-4">
+        <TabsList class="!flex !flex-wrap !items-center !justify-center !gap-2 !p-2 !bg-white/90 !backdrop-blur-md !rounded-2xl !border-2 !border-pink-300 !shadow-md">
+          {speciesList.map((sp, index) => (
+            <TabsTab
+              id={`tab-${sp.id}`}
+              controls={`panel-${sp.id}`}
+              selected={index === 0}
+              class="!inline-flex !items-center !gap-2 !px-5 !py-2.5 !rounded-xl !text-sm !font-bold !transition-all !duration-200 !border-2 !border-pink-200 !bg-pink-50/70 !text-slate-700 hover:!bg-pink-100 hover:!border-pink-400 hover:!text-pink-900 aria-selected:!bg-pink-600 aria-selected:!text-white aria-selected:!border-pink-700 aria-selected:!shadow-md aria-selected:!scale-105 cursor-pointer focus:!outline-none focus:!ring-2 focus:!ring-pink-500"
+            >
+              <span>{sp.emoji}</span>
+              <span>{sp.name}</span>
+            </TabsTab>
+          ))}
+        </TabsList>
+
+        {speciesList.map((sp, index) => (
+          <TabsPanel
+            id={`panel-${sp.id}`}
+            labelledby={`tab-${sp.id}`}
+            selected={index === 0}
+            class="!space-y-4 !w-full"
+          >
+            <div class="bg-white/80 backdrop-blur-xs p-4 rounded-2xl border border-pink-200/80 flex items-center justify-between">
+              <div>
+                <h2 class="text-xl sm:text-2xl font-black text-slate-900">
+                  {sp.emoji} Manchots {sp.name}
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-500">
+                  Panneau d'onglet actif : <code class="font-mono bg-pink-50 px-1.5 py-0.5 rounded text-pink-700 font-bold">{sp.name}</code>
+                </p>
+              </div>
+              <a
+                href={`/species/${sp.name}/`}
+                class="inline-flex items-center gap-1 text-xs font-bold text-pink-600 hover:text-pink-800 bg-pink-50 hover:bg-pink-100 px-3 py-1.5 rounded-full border border-pink-200 transition-colors"
+              >
+                Page dédiée →
+              </a>
+            </div>
+
+            <GraphicSpecies species={sp.name} />
+          </TabsPanel>
+        ))}
+      </Tabs>
+    </div>
+  </div>
+</Layout>
+

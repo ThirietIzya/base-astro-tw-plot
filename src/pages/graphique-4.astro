@@ -2,78 +2,76 @@
 import Layout from '../layouts/Layout.astro';
 import PlotFigure from '../components/PlotFigure.astro';
 import GraphNavigation from '../components/GraphNavigation.astro';
-import * as Plot from "@observablehq/plot";
+import * as Plot from '@observablehq/plot';
 import penguins from '../data/penguins.json';
 
-// Graphique 1 : Nuage de points global
-const penguinsChartOptions = {
-  title: "Longueur des nageoires vs Masse corporelle",
-  subtitle: "Comparaison globale de toutes les espèces de la station Palmer",
-  caption: "Figure 1. Nuage de points des manchots par espèce.",
-  ariaLabel: "Nuage de points représentant la masse corporelle en fonction de la taille des nageoires",
-  grid: true,
-  inset: 10,
+const penguinsWithMass = penguins.filter((penguin) => penguin.body_mass_g !== null);
+
+const bodyMassBySpeciesOptions = {
+  title: 'Masse corporelle par espèce',
+  subtitle: 'Comparaison des médianes, quartiles et moyennes',
+  caption: 'Figure 4. Diagramme en boîte (box-plot) et point blanc pour la moyenne.',
+  ariaLabel: 'Diagramme en boîte comparant la masse corporelle des espèces de manchots',
   width: 760,
-  height: 420,
+  height: 400,
   marginLeft: 60,
   marginBottom: 45,
-  x: { label: "Longueur des nageoires (mm) →" },
-  y: { label: "↑ Masse corporelle (g)" },
-  color: { 
-    legend: true,
+  x: { label: "Espèce" },
+  y: { label: '↑ Masse corporelle (g)', grid: true },
+  color: {
     domain: ["Adelie", "Chinstrap", "Gentoo"],
     range: ["#ea580c", "#9333ea", "#0284c7"]
   },
   marks: [
-    Plot.dot(penguins, { 
-      x: "flipper_length_mm", 
-      y: "body_mass_g", 
-      fill: "species",
-      stroke: "#ffffff",
-      strokeWidth: 1.2,
-      r: 5.5,
-      fillOpacity: 0.85,
-      title: (d) => `Espèce: ${d.species}\nÎle: ${d.island}\nNageoire: ${d.flipper_length_mm}mm\nMasse: ${d.body_mass_g}g`
-    })
+    Plot.boxY(penguinsWithMass, {
+      x: 'species',
+      y: 'body_mass_g',
+      fill: 'species',
+      inset: 20
+    }),
+    Plot.dot(
+      penguinsWithMass,
+      Plot.groupX({ y: 'mean' }, { x: 'species', y: 'body_mass_g', fill: 'white', stroke: '#1e293b', strokeWidth: 1.5, r: 5 })
+    )
   ]
 };
 ---
 
-<Layout title="Visualisation de données - Manchots Palmer (TP2)" activeTab="home">
+<Layout title="Graphique 4 - Masse par espèce" activeTab="graphique4">
   <div class="space-y-8">
     <!-- En-tête -->
     <div class="text-center space-y-3">
       <span class="inline-block px-3 py-1 bg-pink-100 text-pink-800 border border-pink-300 rounded-full text-xs font-bold uppercase tracking-wider">
-        Graphique 1
+        Graphique 4
       </span>
       <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
-        Visualisation des données <span class="text-pink-600">Palmer</span>
+        Boîtes à Moustaches <span class="text-pink-600">(Box-Plot)</span>
       </h1>
       <p class="text-slate-600 max-w-2xl mx-auto text-sm sm:text-base">
-        Exploration interactive de la morphologie des manchots de l'archipel Palmer avec Observable Plot et Astro.
+        Visualisation statistique comparant les médianes, étendues interquartiles et moyennes (points blancs) de chaque espèce.
       </p>
     </div>
 
     <!-- Carte du Graphique -->
-    <section id="penguins-scatter" class="rounded-3xl border-2 border-pink-200 bg-white/95 p-6 sm:p-8 shadow-sm">
+    <section class="rounded-3xl border-2 border-pink-200 bg-white/95 p-6 sm:p-8 shadow-sm">
       <div class="flex items-center justify-between mb-4 pb-3 border-b border-pink-100">
         <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">
-          Graphique 1 : Nuage de points multi-espèces
+          Graphique 4 : Comparaison statistique
         </h2>
         <span class="text-xs font-semibold text-slate-500 bg-pink-50 px-2.5 py-1 rounded-full border border-pink-200">
-          Scatter Plot
+          Box Plot
         </span>
       </div>
 
       <figure class="plot-figure-container flex justify-center items-center overflow-x-auto">
-        <PlotFigure options={penguinsChartOptions} />
+        <PlotFigure options={bodyMassBySpeciesOptions} />
       </figure>
     </section>
 
     <!-- Navigation entre les 4 graphiques -->
     <div class="text-center space-y-2">
       <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Voir les autres graphiques :</span>
-      <GraphNavigation current={1} />
+      <GraphNavigation current={4} />
     </div>
   </div>
 </Layout>

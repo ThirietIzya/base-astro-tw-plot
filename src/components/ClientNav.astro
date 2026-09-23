@@ -1,0 +1,38 @@
+---
+interface Props {
+  current?: string;
+}
+
+const { current } = Astro.props;
+
+const links = [
+  { id: "simple", label: "1. Simple (Aléatoire)", href: "/client/simple/" },
+  { id: "simple-penguin", label: "2. Simple Penguin", href: "/client/simple-penguin/" },
+  { id: "penguin-filtre", label: "3. Penguin (1 filtre)", href: "/client/penguin-filtre/" },
+  { id: "penguin-multi", label: "4. Penguin (Multi-filtres)", href: "/client/penguin-multi-filtres/" },
+  { id: "singes-filtre", label: "5. Singes (Filtres)", href: "/client/singes-filtres/" },
+];
+---
+
+<nav class="flex flex-wrap items-center justify-center gap-2 my-4 p-2 bg-white/80 backdrop-blur-sm rounded-2xl border border-pink-200 shadow-xs" aria-label="Navigation des essais graphiques côté client">
+  <span class="text-xs font-bold text-pink-900 uppercase tracking-wider px-2">Graphiques Client :</span>
+  <div class="flex flex-wrap items-center gap-1.5">
+    {links.map((link) => {
+      const isCurrent = current === link.id;
+      return (
+        <a
+          href={link.href}
+          class:list={[
+            "px-3 py-1.5 rounded-full text-xs font-bold transition-all duration-200 border",
+            isCurrent
+              ? "bg-pink-600 text-white border-pink-700 shadow-xs"
+              : "bg-white text-slate-700 border-pink-200 hover:bg-pink-50 hover:text-pink-900"
+          ]}
+        >
+          {link.label}
+        </a>
+      );
+    })}
+  </div>
+</nav>
+

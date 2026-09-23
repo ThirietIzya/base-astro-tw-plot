@@ -1,0 +1,21 @@
+[
+  { "name": "Chimpanzé", "species": "Pan troglodytes", "group": "Grands Singes", "family": "Hominidés", "weight_kg": 45, "height_cm": 120, "lifespan_years": 45, "habitat": "Forêt tropicale", "diet": "Omnivore", "emoji": "🐵" },
+  { "name": "Bonobo", "species": "Pan paniscus", "group": "Grands Singes", "family": "Hominidés", "weight_kg": 39, "height_cm": 115, "lifespan_years": 40, "habitat": "Forêt équatoriale", "diet": "Frugivore", "emoji": "🐒" },
+  { "name": "Gorille des plaines", "species": "Gorilla gorilla", "group": "Grands Singes", "family": "Hominidés", "weight_kg": 160, "height_cm": 170, "lifespan_years": 35, "habitat": "Forêt dense", "diet": "Herbivore", "emoji": "🦍" },
+  { "name": "Gorille des montagnes", "species": "Gorilla beringei", "group": "Grands Singes", "family": "Hominidés", "weight_kg": 180, "height_cm": 175, "lifespan_years": 40, "habitat": "Montagne", "diet": "Herbivore", "emoji": "🦍" },
+  { "name": "Orang-outan de Bornéo", "species": "Pongo pygmaeus", "group": "Grands Singes", "family": "Hominidés", "weight_kg": 75, "height_cm": 130, "lifespan_years": 45, "habitat": "Canopée tropicale", "diet": "Frugivore", "emoji": "🦧" },
+  { "name": "Orang-outan de Sumatra", "species": "Pongo abelii", "group": "Grands Singes", "family": "Hominidés", "weight_kg": 65, "height_cm": 125, "lifespan_years": 50, "habitat": "Canopée tropicale", "diet": "Frugivore", "emoji": "🦧" },
+  { "name": "Gibbon à mains blanches", "species": "Hylobates lar", "group": "Petits Singes", "family": "Hylobatidés", "weight_kg": 6, "height_cm": 55, "lifespan_years": 30, "habitat": "Haute canopée", "diet": "Frugivore", "emoji": "🐒" },
+  { "name": "Siamang", "species": "Symphalangus syndactylus", "group": "Petits Singes", "family": "Hylobatidés", "weight_kg": 12, "height_cm": 80, "lifespan_years": 35, "habitat": "Forêt de montagne", "diet": "Folivore", "emoji": "🐒" },
+  { "name": "Babouin chacma", "species": "Papio ursinus", "group": "Singes de l'Ancien Monde", "family": "Cercopithécidés", "weight_kg": 30, "height_cm": 75, "lifespan_years": 25, "habitat": "Savane et falaises", "diet": "Omnivore", "emoji": "🐒" },
+  { "name": "Mandrill", "species": "Mandrillus sphinx", "group": "Singes de l'Ancien Monde", "family": "Cercopithécidés", "weight_kg": 32, "height_cm": 80, "lifespan_years": 20, "habitat": "Forêt équatoriale", "diet": "Omnivore", "emoji": "🐒" },
+  { "name": "Macaque rhésus", "species": "Macaca mulatta", "group": "Singes de l'Ancien Monde", "family": "Cercopithécidés", "weight_kg": 8, "height_cm": 50, "lifespan_years": 25, "habitat": "Forêt & Urbain", "diet": "Omnivore", "emoji": "🐒" },
+  { "name": "Macaque japonais", "species": "Macaca fuscata", "group": "Singes de l'Ancien Monde", "family": "Cercopithécidés", "weight_kg": 11, "height_cm": 57, "lifespan_years": 27, "habitat": "Forêts tempérées / Neige", "diet": "Omnivore", "emoji": "🐒" },
+  { "name": "Capucin moine", "species": "Cebus capucinus", "group": "Singes du Nouveau Monde", "family": "Cébidés", "weight_kg": 3.5, "height_cm": 45, "lifespan_years": 30, "habitat": "Forêt tropicale", "diet": "Omnivore", "emoji": "🐒" },
+  { "name": "Singe-écureuil", "species": "Saimiri sciureus", "group": "Singes du Nouveau Monde", "family": "Cébidés", "weight_kg": 1, "height_cm": 30, "lifespan_years": 20, "habitat": "Basse canopée", "diet": "Frugivore", "emoji": "🐒" },
+  { "name": "Hurleur roux", "species": "Alouatta seniculus", "group": "Singes du Nouveau Monde", "family": "Atélidés", "weight_kg": 7.5, "height_cm": 60, "lifespan_years": 20, "habitat": "Forêt inondable", "diet": "Folivore", "emoji": "🐒" },
+  { "name": "Atèle de Geoffroy", "species": "Ateles geoffroyi", "group": "Singes du Nouveau Monde", "family": "Atélidés", "weight_kg": 8, "height_cm": 55, "lifespan_years": 25, "habitat": "Forêt humide", "diet": "Frugivore", "emoji": "🐒" },
+  { "name": "Ouistiti pygmée", "species": "Cebuella pygmaea", "group": "Singes du Nouveau Monde", "family": "Callitrichidés", "weight_kg": 0.12, "height_cm": 13, "lifespan_years": 12, "habitat": "Bordure de rivières", "diet": "Gommivore", "emoji": "🐒" },
+  { "name": "Tamarin empereur", "species": "Saguinus imperator", "group": "Singes du Nouveau Monde", "family": "Callitrichidés", "weight_kg": 0.5, "height_cm": 25, "lifespan_years": 15, "habitat": "Forêt amazonienne", "diet": "Frugivore", "emoji": "🐒" }
+]
+
