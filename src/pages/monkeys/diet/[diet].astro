@@ -1,0 +1,106 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import PlotFigure from "../../../components/PlotFigure.astro";
+import MonkeyNav from "../../../components/MonkeyNav.astro";
+import monkeys from "../../../data/monkeys.json";
+import * as Plot from "@observablehq/plot";
+
+export function getStaticPaths() {
+  const dietList = [...new Set(monkeys.map((m) => m.diet))];
+  return dietList.map((diet) => ({ params: { diet } }));
+}
+
+const { diet } = Astro.params;
+const allDiets = [...new Set(monkeys.map((m) => m.diet))].sort();
+const filteredMonkeys = monkeys.filter((m) => m.diet === diet);
+
+const dietEmoji: Record<string, string> = {
+  Omnivore: "🍖", Frugivore: "🍌", Herbivore: "🌿", Folivore: "🍃", Gommivore: "🌳",
+};
+
+const plotOptions = {
+  grid: true,
+  width: 760,
+  height: 420,
+  marginLeft: 60,
+  marginBottom: 45,
+  inset: 15,
+  x: { label: "Poids (kg) →" },
+  y: { label: "↑ Espérance de vie (ans)" },
+  color: {
+    legend: true,
+    domain: ["Grands Singes", "Petits Singes", "Singes de l'Ancien Monde", "Singes du Nouveau Monde"],
+    range: ["#e11d48", "#f59e0b", "#8b5cf6", "#06b6d4"],
+  },
+  title: `Poids vs Espérance de vie — Régime ${diet}`,
+  subtitle: `${filteredMonkeys.length} espèce(s) avec régime ${diet}`,
+  marks: [
+    Plot.dot(filteredMonkeys, {
+      x: "weight_kg",
+      y: "lifespan_years",
+      fill: "group",
+      stroke: "#ffffff",
+      strokeWidth: 1.5,
+      r: 7,
+      fillOpacity: 0.9,
+      title: (d: any) =>
+        `${d.emoji} ${d.name}\nGroupe: ${d.group}\nPoids: ${d.weight_kg} kg\nEspérance: ${d.lifespan_years} ans`,
+    }),
+    Plot.text(filteredMonkeys, {
+      x: "weight_kg",
+      y: "lifespan_years",
+      text: (d: any) => d.name,
+      dy: -12,
+      fontSize: 10,
+      fill: "#334155",
+    }),
+  ],
+};
+---
+
+<Layout title={`Singes ${diet} - Route Dynamique`} activeTab="singes">
+  <div class="space-y-6">
+    <div class="text-center space-y-2">
+      <div class="flex items-center justify-center gap-2">
+        <a href="/monkeys/diet/" class="text-xs font-bold text-purple-600 hover:text-purple-800 bg-purple-50 px-3 py-1 rounded-full border border-purple-200 transition-colors">
+          ← Retour aux régimes
+        </a>
+        <span class="inline-block px-3 py-1 bg-purple-100 text-purple-900 border border-purple-300 rounded-full text-xs font-bold uppercase tracking-wider">
+          Route dynamique : /monkeys/diet/{diet}
+        </span>
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+        Régime <span class="text-pink-600">{dietEmoji[diet] ?? ""} {diet}</span>
+      </h1>
+      <p class="text-slate-600 font-semibold">{filteredMonkeys.length} espèce(s) avec ce régime alimentaire</p>
+    </div>
+
+    <MonkeyNav current="diet" />
+
+    <nav class="flex flex-wrap items-center justify-center gap-2 p-2.5 bg-white/90 backdrop-blur-md rounded-2xl border-2 border-purple-300 shadow-sm">
+      <span class="text-xs font-bold text-purple-900 px-2 uppercase tracking-wide">Changer de régime :</span>
+      {allDiets.map((d) => (
+        <a href={`/monkeys/diet/${d}/`}
+          class:list={[
+            "px-3 py-1.5 rounded-full text-xs font-bold transition-all border",
+            d === diet
+              ? "bg-purple-600 text-white border-purple-700 scale-105"
+              : "bg-white text-slate-700 border-purple-200 hover:bg-purple-50 hover:text-purple-900"
+          ]}>
+          {dietEmoji[d] ?? ""} {d}
+        </a>
+      ))}
+    </nav>
+
+    <section class="rounded-3xl border-2 border-purple-200 bg-white/95 p-6 sm:p-8 shadow-sm">
+      <div class="flex items-center justify-between mb-4 pb-3 border-b border-purple-100">
+        <h2 class="text-lg font-extrabold text-slate-900">Poids vs Espérance de vie — {diet}</h2>
+        <span class="text-xs font-semibold text-slate-500 bg-purple-50 px-2.5 py-1 rounded-full border border-purple-200">Observable Plot</span>
+      </div>
+      <figure class="plot-figure-container flex justify-center items-center overflow-x-auto">
+        <PlotFigure options={plotOptions} />
+      </figure>
+    </section>
+  </div>
+</Layout>
+
