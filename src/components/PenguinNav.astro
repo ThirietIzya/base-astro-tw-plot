@@ -1,0 +1,39 @@
+---
+interface Props {
+  current?: 'all' | 'specie' | 'island' | 'sex' | string;
+}
+
+const { current } = Astro.props;
+
+const navLinks = [
+  { id: 'all', label: '🐧 Vue Slider (Toutes)', href: '/penguins/' },
+  { id: 'specie', label: '🧬 Par Espèce', href: '/penguins/specie/' },
+  { id: 'island', label: '🏝️ Par Île', href: '/penguins/island/' },
+  { id: 'sex', label: '⚥ Par Sexe', href: '/penguins/sex/' },
+];
+---
+
+<nav class="flex flex-wrap items-center justify-center gap-2 my-4 p-2.5 bg-white/90 backdrop-blur-md rounded-2xl border-2 border-pink-300 shadow-sm" aria-label="Navigation des sous-dossiers Penguins">
+  <span class="text-xs font-bold text-pink-900 uppercase tracking-wider px-2">Filtres Dynamiques :</span>
+  <div class="flex flex-wrap items-center gap-1.5">
+    {
+      navLinks.map((item) => {
+        const isActive = current === item.id;
+        return (
+          <a
+            href={item.href}
+            class:list={[
+              "px-3.5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 border",
+              isActive
+                ? "bg-pink-600 text-white border-pink-700 shadow-xs scale-105"
+                : "bg-white text-slate-700 border-pink-200 hover:bg-pink-100 hover:text-pink-900"
+            ]}
+          >
+            {item.label}
+          </a>
+        );
+      })
+    }
+  </div>
+</nav>
+

@@ -1,0 +1,74 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import GraphicSpecies from "../../../components/GraphicSpecies.astro";
+import PenguinNav from "../../../components/PenguinNav.astro";
+import penguins from "../../../data/penguins.json";
+
+// Génération statique des routes avec getStaticPaths
+export function getStaticPaths() {
+  const speciesList = [...new Set(penguins.map((p) => p.species))];
+  return speciesList.map((species) => ({
+    params: { species },
+  }));
+}
+
+const { species } = Astro.params;
+
+// Toutes les espèces pour la navigation
+const allSpecies = [...new Set(penguins.map((p) => p.species))].sort();
+
+// Filtrer les manchots pour l'espèce spécifiée
+const filteredPenguins = penguins.filter((p) => p.species === species);
+---
+
+<Layout title={`Manchots ${species} - Route Dynamique`} activeTab="penguins">
+  <div class="space-y-6">
+    <!-- En-tête -->
+    <div class="text-center space-y-2">
+      <div class="flex items-center justify-center gap-2">
+        <a href="/penguins/specie/" class="text-xs font-bold text-pink-600 hover:text-pink-800 bg-pink-50 px-3 py-1 rounded-full border border-pink-200 transition-colors">
+          ← Retour à la liste des espèces
+        </a>
+        <span class="inline-block px-3 py-1 bg-pink-100 text-pink-800 border border-pink-300 rounded-full text-xs font-bold uppercase tracking-wider">
+          Route dynamique : /penguins/specie/{species}
+        </span>
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+        Espèce : <span class="text-pink-600">{species}</span>
+      </h1>
+      <p class="text-slate-600 max-w-2xl mx-auto text-sm sm:text-base font-semibold">
+        {filteredPenguins.length} individu(s) analysé(s) pour l'espèce {species}.
+      </p>
+    </div>
+
+    <!-- Navigation des sous-dossiers -->
+    <PenguinNav current="specie" />
+
+    <!-- Navigation rapide entre espèces -->
+    <nav class="flex flex-wrap items-center justify-center gap-2 p-2.5 bg-white/90 backdrop-blur-md rounded-2xl border-2 border-pink-300 shadow-sm" aria-label="Sélecteur d'espèce">
+      <span class="text-xs font-bold text-pink-900 px-2 uppercase tracking-wide">Changer d'espèce :</span>
+      {
+        allSpecies.map((sp) => {
+          const isSelected = sp === species;
+          return (
+            <a
+              href={`/penguins/specie/${sp}/`}
+              class:list={[
+                "px-4 py-1.5 rounded-full text-xs font-bold transition-all border",
+                isSelected
+                  ? "bg-pink-600 text-white border-pink-700 shadow-xs scale-105"
+                  : "bg-white text-slate-700 border-pink-200 hover:bg-pink-50 hover:text-pink-900"
+              ]}
+            >
+              {sp}
+            </a>
+          );
+        })
+      }
+    </nav>
+
+    <!-- Affichage du composant graphique réutilisable -->
+    {species && <GraphicSpecies species={species} />}
+  </div>
+</Layout>
+

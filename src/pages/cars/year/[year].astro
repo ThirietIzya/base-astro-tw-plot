@@ -1,0 +1,142 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import cars from "../../../assets/cars.json";
+import PlotFigure from "../../../components/PlotFigure.astro";
+import * as Plot from "@observablehq/plot";
+
+export function getStaticPaths() {
+  const years = [...new Set(cars.map((c) => c.year.toString()))].sort();
+  return years.map((year) => ({
+    params: { year },
+  }));
+}
+
+const { year } = Astro.params;
+
+// Filtrer les voitures pour l'année spécifiée
+const filteredCars = cars.filter((car) => car.year.toString() === year);
+
+// Toutes les années disponibles pour la navigation
+const allYears = [...new Set(cars.map((c) => c.year.toString()))].sort((a, b) => Number(a) - Number(b));
+
+// Configuration du graphique
+const plotOptions = {
+  grid: true,
+  width: 760,
+  height: 420,
+  marginLeft: 60,
+  marginBottom: 45,
+  marks: [
+    Plot.dot(filteredCars, {
+      x: "weight (lb)",
+      y: "power (hp)",
+      fill: "steelblue",
+      stroke: "#ffffff",
+      strokeWidth: 1.2,
+      r: 5,
+      fillOpacity: 0.85,
+      title: (d) => `${d.name}\nPoids: ${d["weight (lb)"]} lb\nPuissance: ${d["power (hp)"]} hp\nConsommation: ${d["economy (mpg)"]} mpg`
+    }),
+  ],
+  x: {
+    label: "Poids (lb) →",
+  },
+  y: {
+    label: "↑ Puissance (hp)",
+  },
+  title: `Relation Puissance vs Poids - Voitures 19${year} (Année ${year})`,
+};
+---
+
+<Layout title={`Voitures de l'année 19${year} - TP Observable Plot`} activeTab="cars">
+  <div class="space-y-8">
+    <!-- En-tête -->
+    <div class="text-center space-y-3">
+      <div class="flex items-center justify-center gap-2">
+        <a href="/cars/" class="text-xs font-bold text-pink-600 hover:text-pink-800 bg-pink-50 px-3 py-1 rounded-full border border-pink-200 transition-colors">
+          ← Retour au catalogue des années
+        </a>
+        <span class="inline-block px-3 py-1 bg-pink-100 text-pink-800 border border-pink-300 rounded-full text-xs font-bold uppercase tracking-wider">
+          Route dynamique : /cars/year/{year}
+        </span>
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+        Voitures de l'année <span class="text-pink-600">19{year} ({year})</span>
+      </h1>
+      <p class="text-slate-600 max-w-2xl mx-auto text-sm sm:text-base font-semibold">
+        {filteredCars.length} voiture(s) trouvée(s) pour l'année {year}
+      </p>
+    </div>
+
+    <!-- Navigation rapide entre les années -->
+    <nav class="flex flex-wrap items-center justify-center gap-1.5 p-3 bg-white/90 backdrop-blur-md rounded-2xl border-2 border-pink-300 shadow-sm" aria-label="Sélecteur d'année">
+      <span class="text-xs font-bold text-pink-900 px-2 uppercase tracking-wide">Années :</span>
+      {
+        allYears.map((y) => {
+          const isSelected = y === year;
+          return (
+            <a
+              href={`/cars/year/${y}/`}
+              class:list={[
+                "px-3 py-1 rounded-xl text-xs font-bold transition-all border",
+                isSelected
+                  ? "bg-pink-600 text-white border-pink-700 shadow-xs scale-105"
+                  : "bg-white text-slate-700 border-pink-200 hover:bg-pink-50 hover:text-pink-900"
+              ]}
+            >
+              19{y}
+            </a>
+          );
+        })
+      }
+    </nav>
+
+    <!-- Zone Graphique -->
+    <section class="rounded-3xl border-2 border-pink-200 bg-white/95 p-6 sm:p-8 shadow-sm">
+      <div class="flex items-center justify-between mb-4 pb-3 border-b border-pink-100">
+        <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">
+          Puissance (hp) vs Poids (lb) - Année 19{year}
+        </h2>
+        <span class="text-xs font-semibold text-slate-500 bg-pink-50 px-2.5 py-1 rounded-full border border-pink-200">
+          Observable Plot
+        </span>
+      </div>
+
+      <figure class="plot-figure-container flex justify-center items-center overflow-x-auto">
+        <PlotFigure options={plotOptions} />
+      </figure>
+    </section>
+
+    <!-- Tableau récapitulatif des modèles pour cette année -->
+    <div class="rounded-3xl border border-pink-200 bg-white/90 p-5 shadow-xs overflow-x-auto">
+      <h3 class="font-extrabold text-slate-900 mb-3 text-sm sm:text-base">
+        🚗 Liste des {filteredCars.length} modèles de l'année 19{year}
+      </h3>
+      <table class="w-full text-left text-xs sm:text-sm text-slate-700">
+        <thead>
+          <tr class="border-b border-pink-200 bg-pink-50 text-pink-900 font-bold">
+            <th class="py-2 px-3">Modèle</th>
+            <th class="py-2 px-3 text-right">Puissance (hp)</th>
+            <th class="py-2 px-3 text-right">Poids (lb)</th>
+            <th class="py-2 px-3 text-right">Consommation (mpg)</th>
+            <th class="py-2 px-3 text-right">Cylindres</th>
+            <th class="py-2 px-3 text-right">0-60 mph (s)</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-pink-100">
+          {filteredCars.map((car) => (
+            <tr class="hover:bg-pink-50/50 transition-colors">
+              <td class="py-2 px-3 font-semibold text-slate-900">{car.name}</td>
+              <td class="py-2 px-3 text-right font-mono text-pink-700 font-bold">{car["power (hp)"] ?? "N/A"}</td>
+              <td class="py-2 px-3 text-right font-mono">{car["weight (lb)"] ?? "N/A"}</td>
+              <td class="py-2 px-3 text-right font-mono">{car["economy (mpg)"] ?? "N/A"}</td>
+              <td class="py-2 px-3 text-right font-mono">{car.cylinders ?? "N/A"}</td>
+              <td class="py-2 px-3 text-right font-mono">{car["0-60 mph (s)"] ?? "N/A"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</Layout>
+

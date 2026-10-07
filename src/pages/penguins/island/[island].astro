@@ -1,0 +1,121 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import PlotFigure from "../../../components/PlotFigure.astro";
+import PenguinNav from "../../../components/PenguinNav.astro";
+import penguins from "../../../data/penguins.json";
+import * as Plot from "@observablehq/plot";
+
+export function getStaticPaths() {
+  const islands = [...new Set(penguins.map((p) => p.island))];
+  return islands.map((island) => ({ params: { island } }));
+}
+
+const { island } = Astro.params;
+
+const allIslands = [...new Set(penguins.map((p) => p.island))].sort();
+
+// Filtrer les manchots pour l'île spécifiée
+const filteredPenguins = penguins.filter((p) => p.island === island);
+
+// Statistiques
+const speciesOnIsland = [...new Set(filteredPenguins.map((p) => p.species))];
+
+// Graphique : nuage de points longueur bec vs profondeur, par espèce
+const plotOptions = {
+  grid: true,
+  width: 760,
+  height: 420,
+  marginLeft: 60,
+  marginBottom: 45,
+  inset: 10,
+  x: { label: "Longueur du bec (mm) →" },
+  y: { label: "↑ Profondeur du bec (mm)" },
+  color: {
+    legend: true,
+    domain: ["Adelie", "Chinstrap", "Gentoo"],
+    range: ["#ea580c", "#9333ea", "#0284c7"],
+  },
+  title: `Bec des manchots - Île ${island}`,
+  subtitle: `${filteredPenguins.length} individu(s) observé(s) sur l'île ${island}`,
+  marks: [
+    Plot.dot(filteredPenguins, {
+      x: "culmen_length_mm",
+      y: "culmen_depth_mm",
+      fill: "species",
+      stroke: "#ffffff",
+      strokeWidth: 1.2,
+      r: 5,
+      fillOpacity: 0.85,
+      title: (d: any) =>
+        `${d.species}\nÎle: ${d.island}\nSexe: ${d.sex ?? "N/A"}\nBec: ${d.culmen_length_mm}×${d.culmen_depth_mm} mm`,
+    }),
+  ],
+};
+---
+
+<Layout title={`Île ${island} - Manchots Palmer`} activeTab="penguins">
+  <div class="space-y-6">
+    <!-- En-tête -->
+    <div class="text-center space-y-2">
+      <div class="flex items-center justify-center gap-2">
+        <a
+          href="/penguins/island/"
+          class="text-xs font-bold text-pink-600 hover:text-pink-800 bg-pink-50 px-3 py-1 rounded-full border border-pink-200 transition-colors"
+        >
+          ← Retour aux îles
+        </a>
+        <span class="inline-block px-3 py-1 bg-pink-100 text-pink-800 border border-pink-300 rounded-full text-xs font-bold uppercase tracking-wider">
+          Route dynamique : /penguins/island/{island}
+        </span>
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+        Île <span class="text-pink-600">{island} 🏝️</span>
+      </h1>
+      <p class="text-slate-600 max-w-2xl mx-auto text-sm sm:text-base font-semibold">
+        {filteredPenguins.length} manchot(s) analysé(s) · Espèces : {speciesOnIsland.join(", ")}
+      </p>
+    </div>
+
+    <!-- Navigation des sous-dossiers -->
+    <PenguinNav current="island" />
+
+    <!-- Navigation rapide entre îles -->
+    <nav class="flex flex-wrap items-center justify-center gap-2 p-2.5 bg-white/90 backdrop-blur-md rounded-2xl border-2 border-pink-300 shadow-sm">
+      <span class="text-xs font-bold text-pink-900 px-2 uppercase tracking-wide">Changer d'île :</span>
+      {
+        allIslands.map((isl) => {
+          const isSelected = isl === island;
+          return (
+            <a
+              href={`/penguins/island/${isl}/`}
+              class:list={[
+                "px-4 py-1.5 rounded-full text-xs font-bold transition-all border",
+                isSelected
+                  ? "bg-pink-600 text-white border-pink-700 shadow-xs scale-105"
+                  : "bg-white text-slate-700 border-pink-200 hover:bg-pink-50 hover:text-pink-900",
+              ]}
+            >
+              {isl}
+            </a>
+          );
+        })
+      }
+    </nav>
+
+    <!-- Graphique -->
+    <section class="rounded-3xl border-2 border-pink-200 bg-white/95 p-6 sm:p-8 shadow-sm">
+      <div class="flex items-center justify-between mb-4 pb-3 border-b border-pink-100">
+        <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">
+          Longueur vs Profondeur du bec — Île {island}
+        </h2>
+        <span class="text-xs font-semibold text-slate-500 bg-pink-50 px-2.5 py-1 rounded-full border border-pink-200">
+          Observable Plot
+        </span>
+      </div>
+      <figure class="plot-figure-container flex justify-center items-center overflow-x-auto">
+        <PlotFigure options={plotOptions} />
+      </figure>
+    </section>
+  </div>
+</Layout>
+

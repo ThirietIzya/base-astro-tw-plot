@@ -1,0 +1,73 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import cars from "../../assets/cars.json";
+
+const years = [...new Set(cars.map((c) => c.year))].sort((a, b) => a - b);
+const totalCars = cars.length;
+---
+
+<Layout title="Voitures par Année - Routes Dynamiques" activeTab="cars">
+  <div class="space-y-8">
+    <!-- En-tête -->
+    <div class="text-center space-y-3">
+      <span class="inline-block px-3 py-1 bg-pink-100 text-pink-800 border border-pink-300 rounded-full text-xs font-bold uppercase tracking-wider">
+        TP : Routes Paramétriques & getStaticPaths
+      </span>
+      <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+        Catalogue des <span class="text-pink-600">Voitures 🚗</span>
+      </h1>
+      <p class="text-slate-600 max-w-2xl mx-auto text-sm sm:text-base">
+        Sélectionnez une année pour visualiser les données morphologiques et techniques de nos <strong>{totalCars} modèles de voitures</strong> (Poids vs Puissance).
+      </p>
+    </div>
+
+    <!-- Grille des années disponibles -->
+    <section class="rounded-3xl border-2 border-pink-200 bg-white/95 p-6 sm:p-8 shadow-sm">
+      <h2 class="text-lg sm:text-xl font-extrabold text-slate-900 mb-6 text-center">
+        📅 Choisir une année de production
+      </h2>
+
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+        {
+          years.map((y) => {
+            const countForYear = cars.filter((c) => c.year === y).length;
+            return (
+              <a
+                href={`/cars/year/${y}/`}
+                class="group flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-pink-200 bg-pink-50/50 hover:bg-pink-600 hover:border-pink-700 hover:text-white transition-all duration-200 shadow-xs hover:shadow-md hover:scale-105"
+              >
+                <span class="text-2xl mb-1 group-hover:scale-110 transition-transform">🏎️</span>
+                <span class="text-base font-black text-slate-900 group-hover:text-white">
+                  19{y}
+                </span>
+                <span class="text-xs font-bold text-pink-700 group-hover:text-pink-100">
+                  {countForYear} modèle{countForYear > 1 ? 's' : ''}
+                </span>
+              </a>
+            );
+          })
+        }
+      </div>
+    </section>
+
+    <!-- Liste d'accès direct standard du TP -->
+    <div class="rounded-2xl border border-pink-200 bg-white/80 p-5 shadow-xs">
+      <h3 class="font-bold text-slate-800 mb-2 text-sm">Navigation rapide (liste standard du TP) :</h3>
+      <ul class="flex flex-wrap gap-2 text-xs">
+        {
+          years.map((y) => (
+            <li>
+              <a
+                href={`/cars/year/${y}/`}
+                class="inline-block px-3 py-1.5 rounded-full bg-slate-100 hover:bg-pink-100 text-slate-700 hover:text-pink-900 font-semibold transition-colors"
+              >
+                Année : {y} (19{y})
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</Layout>
+

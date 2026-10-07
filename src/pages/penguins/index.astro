@@ -1,0 +1,130 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import GraphicSpecies from "../../components/GraphicSpecies.astro";
+import PenguinNav from "../../components/PenguinNav.astro";
+import penguins from "../../data/penguins.json";
+
+// Détermination automatique de la liste des espèces uniques
+const speciesList = [...new Set(penguins.map((p) => p.species))].sort();
+
+const speciesEmoji: Record<string, string> = {
+  Adelie: "🟧",
+  Gentoo: "🟦",
+  Chinstrap: "🟪",
+};
+---
+
+<Layout title="Tous les Manchots - Slider Dynamique" activeTab="penguins">
+  <div class="space-y-6">
+    <!-- En-tête -->
+    <div class="text-center space-y-2">
+      <span class="inline-block px-3 py-1 bg-pink-100 text-pink-800 border border-pink-300 rounded-full text-xs font-bold uppercase tracking-wider">
+        TP : Rendu par Boucle & [...new Set()]
+      </span>
+      <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+        Visualisation de tous les <span class="text-pink-600">Manchots</span>
+      </h1>
+      <p class="text-slate-600 max-w-2xl mx-auto text-sm sm:text-base">
+        Graphiques générés dynamiquement par une boucle <code>map()</code> sur la liste des espèces extraites automatiquement avec <code>[...new Set()]</code>.
+      </p>
+    </div>
+
+    <!-- Navigation des sous-dossiers -->
+    <PenguinNav current="all" />
+
+    <!-- Sélecteur d'ancres pour le slider -->
+    <div class="sticky top-4 z-20 flex justify-center items-center py-2">
+      <div class="flex items-center gap-3 p-3 bg-white/95 backdrop-blur-md rounded-2xl border-2 border-pink-300 shadow-md">
+        <label for="species-anchor-select" class="text-xs sm:text-sm font-bold text-pink-900">
+          Aller à l'espèce (slider) :
+        </label>
+        <select
+          id="species-anchor-select"
+          name="species-anchor-select"
+          class="px-3 py-1.5 rounded-xl text-xs sm:text-sm font-semibold bg-white text-slate-800 border border-pink-300 shadow-xs focus:outline-none focus:ring-2 focus:ring-pink-500 cursor-pointer"
+        >
+          {
+            speciesList.map((sp) => (
+              <option value={sp.toLowerCase()}>
+                {speciesEmoji[sp] ?? "🐧"} {sp} (#{sp.toLowerCase()})
+              </option>
+            ))
+          }
+        </select>
+      </div>
+    </div>
+
+    <!-- Slider horizontal avec rendu en boucle map -->
+    <div
+      class="species-slider-wrap w-full overflow-x-auto overflow-y-hidden scroll-smooth snap-x snap-mandatory rounded-3xl pb-4 pt-1 no-scrollbar focus:outline-none"
+      id="species-slider-wrap"
+      tabindex="0"
+    >
+      <div class="species-slider flex gap-8 min-w-full" id="species-slider">
+        {
+          speciesList.map((speciesName) => (
+            <section
+              id={speciesName.toLowerCase()}
+              class="item species-slide flex-none w-full snap-start snap-always scroll-mt-28 space-y-4"
+            >
+              <div class="bg-white/80 backdrop-blur-xs p-4 rounded-2xl border border-pink-200/80 flex items-center justify-between">
+                <div>
+                  <h2 class="text-xl sm:text-2xl font-black text-slate-900">
+                    {speciesEmoji[speciesName] ?? "🐧"} Manchots {speciesName}
+                  </h2>
+                  <p class="text-xs sm:text-sm text-slate-500">
+                    Espèce extraite automatiquement : <code class="font-mono bg-pink-50 px-1.5 py-0.5 rounded text-pink-700 font-bold">{speciesName}</code>
+                  </p>
+                </div>
+                <a
+                  href={`/penguins/specie/${speciesName}/`}
+                  class="inline-flex items-center gap-1 text-xs font-bold text-pink-600 hover:text-pink-800 bg-pink-50 hover:bg-pink-100 px-3 py-1.5 rounded-full border border-pink-200 transition-colors"
+                >
+                  Page dynamique dédiée →
+                </a>
+              </div>
+
+              <!-- Rendu du graphique pour cette espèce -->
+              <GraphicSpecies species={speciesName} />
+            </section>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  const anchorSelect = document.querySelector<HTMLSelectElement>("#species-anchor-select");
+  const items = document.querySelectorAll(".item");
+  const sliderWrap = document.querySelector("#species-slider-wrap");
+
+  anchorSelect?.addEventListener("change", (evt) => {
+    const value = (evt.target as HTMLSelectElement).value;
+    if (value) {
+      location.hash = value;
+    }
+  });
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && anchorSelect) {
+          const id = entry.target.getAttribute("id");
+          if (id) {
+            anchorSelect.value = id;
+          }
+        }
+      });
+    },
+    { 
+      root: sliderWrap,
+      threshold: 0.5 
+    },
+  );
+
+  items.forEach((item) => {
+    observer.observe(item);
+  });
+</script>
+

@@ -1,0 +1,123 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import PlotFigure from "../../../components/PlotFigure.astro";
+import PenguinNav from "../../../components/PenguinNav.astro";
+import penguins from "../../../data/penguins.json";
+import * as Plot from "@observablehq/plot";
+
+export function getStaticPaths() {
+  const sexList = [...new Set(penguins.map((p) => p.sex))].filter(Boolean) as string[];
+  return sexList.map((sex) => ({ params: { sex } }));
+}
+
+const { sex } = Astro.params;
+
+const allSexes = [...new Set(penguins.map((p) => p.sex))].filter(Boolean).sort() as string[];
+
+// Filtrer les manchots pour ce sexe
+const filteredPenguins = penguins.filter((p) => p.sex === sex);
+
+const sexLabel: Record<string, string> = {
+  MALE: "Mâles ♂️",
+  FEMALE: "Femelles ♀️",
+};
+
+// Graphique : masse corporelle vs longueur nageoire, par espèce
+const plotOptions = {
+  grid: true,
+  width: 760,
+  height: 420,
+  marginLeft: 60,
+  marginBottom: 45,
+  inset: 10,
+  x: { label: "Longueur des nageoires (mm) →" },
+  y: { label: "↑ Masse corporelle (g)" },
+  color: {
+    legend: true,
+    domain: ["Adelie", "Chinstrap", "Gentoo"],
+    range: ["#ea580c", "#9333ea", "#0284c7"],
+  },
+  title: `Nageoires vs Masse — Manchots ${sexLabel[sex] ?? sex}`,
+  subtitle: `${filteredPenguins.length} individu(s) · Sexe : ${sex}`,
+  marks: [
+    Plot.dot(filteredPenguins, {
+      x: "flipper_length_mm",
+      y: "body_mass_g",
+      fill: "species",
+      stroke: "#ffffff",
+      strokeWidth: 1.2,
+      r: 5,
+      fillOpacity: 0.85,
+      title: (d: any) =>
+        `${d.species}\nÎle: ${d.island}\nSexe: ${d.sex}\nNageoire: ${d.flipper_length_mm} mm\nMasse: ${d.body_mass_g} g`,
+    }),
+  ],
+};
+---
+
+<Layout title={`Manchots ${sexLabel[sex] ?? sex} - Route Dynamique`} activeTab="penguins">
+  <div class="space-y-6">
+    <!-- En-tête -->
+    <div class="text-center space-y-2">
+      <div class="flex items-center justify-center gap-2">
+        <a
+          href="/penguins/sex/"
+          class="text-xs font-bold text-pink-600 hover:text-pink-800 bg-pink-50 px-3 py-1 rounded-full border border-pink-200 transition-colors"
+        >
+          ← Retour aux sexes
+        </a>
+        <span class="inline-block px-3 py-1 bg-pink-100 text-pink-800 border border-pink-300 rounded-full text-xs font-bold uppercase tracking-wider">
+          Route dynamique : /penguins/sex/{sex}
+        </span>
+      </div>
+      <h1 class="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">
+        Manchots <span class="text-pink-600">{sexLabel[sex] ?? sex}</span>
+      </h1>
+      <p class="text-slate-600 max-w-2xl mx-auto text-sm sm:text-base font-semibold">
+        {filteredPenguins.length} individu(s) analysé(s) — Sexe : {sex}
+      </p>
+    </div>
+
+    <!-- Navigation des sous-dossiers -->
+    <PenguinNav current="sex" />
+
+    <!-- Navigation rapide entre sexes -->
+    <nav class="flex flex-wrap items-center justify-center gap-3 p-2.5 bg-white/90 backdrop-blur-md rounded-2xl border-2 border-pink-300 shadow-sm">
+      <span class="text-xs font-bold text-pink-900 px-2 uppercase tracking-wide">Changer :</span>
+      {
+        allSexes.map((s) => {
+          const isSelected = s === sex;
+          return (
+            <a
+              href={`/penguins/sex/${s}/`}
+              class:list={[
+                "px-4 py-1.5 rounded-full text-xs font-bold transition-all border",
+                isSelected
+                  ? "bg-pink-600 text-white border-pink-700 shadow-xs scale-105"
+                  : "bg-white text-slate-700 border-pink-200 hover:bg-pink-50 hover:text-pink-900",
+              ]}
+            >
+              {sexLabel[s] ?? s}
+            </a>
+          );
+        })
+      }
+    </nav>
+
+    <!-- Graphique -->
+    <section class="rounded-3xl border-2 border-pink-200 bg-white/95 p-6 sm:p-8 shadow-sm">
+      <div class="flex items-center justify-between mb-4 pb-3 border-b border-pink-100">
+        <h2 class="text-lg sm:text-xl font-extrabold text-slate-900">
+          Nageoires (mm) vs Masse (g) — {sexLabel[sex] ?? sex}
+        </h2>
+        <span class="text-xs font-semibold text-slate-500 bg-pink-50 px-2.5 py-1 rounded-full border border-pink-200">
+          Observable Plot
+        </span>
+      </div>
+      <figure class="plot-figure-container flex justify-center items-center overflow-x-auto">
+        <PlotFigure options={plotOptions} />
+      </figure>
+    </section>
+  </div>
+</Layout>
+
